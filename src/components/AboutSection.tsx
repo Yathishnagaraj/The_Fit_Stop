@@ -16,27 +16,28 @@ const AboutSection = () => {
             <p className="text-accent font-semibold text-sm tracking-[0.2em] uppercase mb-3">
               About Us
             </p>
-            <h2 className="font-heading text-4xl md:text-5xl text-foreground mb-6 leading-tight">
-              A decade of delivering excellence
+             <h2 className="font-heading text-4xl md:text-5xl text-foreground mb-6 leading-tight">
+              Great games deserve great fuel
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed mb-4">
-              Founded in 2014, Apex is a forward-thinking technology and consulting firm 
-              dedicated to helping organizations navigate digital transformation. We combine 
-              deep industry knowledge with cutting-edge technology to deliver lasting impact.
+              At FitStop, we are a premium vending machine provider dedicated to upgrading 
+              the sports facility experience. We know that after a high-intensity match of 
+              badminton, cricket, or pickleball, athletes need more than just sugar and empty 
+              calories — they need recovery.
             </p>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Our team of 50+ professionals spans design, engineering, strategy, and data 
-              science — working together to solve complex challenges for clients worldwide.
+              We bridge the gap between convenience and nutrition, providing your players 
+              with the high-quality energy they need to perform their best and recover faster.
             </p>
           </div>
 
           {/* Right — Stats */}
           <div className="grid grid-cols-2 gap-6">
             {[
-              { value: "10+", label: "Years of experience" },
-              { value: "200+", label: "Projects delivered" },
-              { value: "50+", label: "Team members" },
-              { value: "98%", label: "Client satisfaction" },
+              { value: "100%", label: "Hassle-free management" },
+              { value: "24/7", label: "Maintenance support" },
+              { value: "0%", label: "Junk food" },
+              { value: "100%", label: "Performance fuel" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}

@@ -1,36 +1,36 @@
 import { motion } from "framer-motion";
-import { Code, BarChart3, Palette, ShieldCheck, Rocket, Users } from "lucide-react";
+import { Droplets, Beef, Cookie, Zap, Package, Wrench } from "lucide-react";
 
 const services = [
   {
-    icon: Code,
-    title: "Software Development",
-    description: "Custom web and mobile applications built with modern technologies and best practices.",
+    icon: Droplets,
+    title: "Sports Drinks & Electrolytes",
+    description: "Premium electrolytes and sports drinks to replenish what the game took out.",
   },
   {
-    icon: Palette,
-    title: "UI/UX Design",
-    description: "User-centered design that converts. From wireframes to polished interfaces.",
+    icon: Beef,
+    title: "Protein Bars",
+    description: "High-quality protein bars to help muscles rebuild post-match.",
   },
   {
-    icon: BarChart3,
-    title: "Data & Analytics",
-    description: "Turn raw data into actionable insights with our analytics and BI solutions.",
+    icon: Cookie,
+    title: "Healthy Snacks",
+    description: "Protein chips, roasted nuts, and savory snacks that satisfy cravings without the cheat meal regret.",
   },
   {
-    icon: ShieldCheck,
-    title: "Cybersecurity",
-    description: "Protect your digital assets with our comprehensive security audits and solutions.",
+    icon: Zap,
+    title: "Natural Energy Boosters",
+    description: "Zero-sugar beverages and natural energy boosters for that extra edge.",
   },
   {
-    icon: Rocket,
-    title: "Digital Strategy",
-    description: "Strategic roadmaps that align technology investments with business goals.",
+    icon: Package,
+    title: "Fully Managed Inventory",
+    description: "We monitor stock levels and restock frequently so the machine is never empty.",
   },
   {
-    icon: Users,
-    title: "IT Consulting",
-    description: "Expert guidance to optimize your technology stack and operational workflows.",
+    icon: Wrench,
+    title: "Maintenance & Support",
+    description: "Our maintenance team is on standby to fix any issue immediately. You don't lift a finger.",
   },
 ];
 
@@ -46,10 +46,10 @@ const ServicesSection = () => {
           className="text-center mb-16"
         >
           <p className="text-accent font-semibold text-sm tracking-[0.2em] uppercase mb-3">
-            What We Do
+            What We Offer
           </p>
           <h2 className="font-heading text-4xl md:text-5xl text-foreground">
-            Our Services
+            Products & Services
           </h2>
         </motion.div>
 

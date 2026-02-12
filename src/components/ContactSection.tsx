@@ -30,15 +30,15 @@ const ContactSection = () => {
             className="space-y-8"
           >
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Ready to start your next project? Reach out and let's discuss how we can 
-              help your organization grow.
+              Ready to upgrade your turf? Reach out and let's discuss how FitStop 
+              can fuel your sports facility.
             </p>
 
             <div className="space-y-6">
               {[
-                { icon: Mail, label: "Email", value: "hello@apex.com" },
-                { icon: Phone, label: "Phone", value: "+1 (555) 123-4567" },
-                { icon: MapPin, label: "Address", value: "123 Innovation Drive, San Francisco, CA 94102" },
+                { icon: Mail, label: "Email", value: "manisbhoopalam@gmail.com" },
+                { icon: Phone, label: "Phone", value: "9108356860 / 9164408724" },
+                { icon: MapPin, label: "Website", value: "www.thefitstop.in" },
               ].map((item) => (
                 <div key={item.label} className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
