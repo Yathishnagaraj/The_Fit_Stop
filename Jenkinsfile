@@ -15,8 +15,8 @@ pipeline {
     stage('Checkout') {
       steps {
         checkout scm
-        script { GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim() }
-      }
+        script {def GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        }
     }
 
     stage('Install & Build') {
