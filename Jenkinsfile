@@ -70,9 +70,11 @@ pipeline {
                     )
                 ]) {
                     sh """
+                        export IMAGE_TAG="${env.IMAGE_TAG}"
+
                         echo "\$DH_PASS" | docker login -u "\$DH_USER" --password-stdin
-                        docker build -t "\${IMAGE_TAG}" .
-                        docker push "\${IMAGE_TAG}"
+                        docker build -t "\$IMAGE_TAG" .
+                        docker push "\$IMAGE_TAG"
                         docker logout
                     """
                 }
