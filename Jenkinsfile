@@ -1,121 +1,65 @@
 pipeline {
     agent any
-
-    parameters {
-        string(
-            name: 'IMAGE',
-            defaultValue: 'yathish047/fitstopweb',
-            description: 'Docker Hub repo (user/repo)'
-        )
-        booleanParam(
-            name: 'RUN_TESTS',
-            defaultValue: true,
-            description: 'Run unit tests'
-        )
-    }
-
+    
     environment {
-        DOCKER_CREDS = 'dockerhub-creds'
-        SSH_CREDS    = 'ssh-deploy-key'
-
-        DEPLOY_HOST  = 'your.deploy.host'
-        DEPLOY_USER  = 'deploy'
-
-        GIT_SHA      = ''
-        IMAGE_TAG    = ''
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        IMAGE_NAME = 'yathish047/fitstopweb'
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
-
+    
     stages {
-
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/Yathishnagaraj/The_Fit_Stop.git'
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
                 script {
-                    env.GIT_SHA = sh(
-                        script: 'git rev-parse --short HEAD',
-                        returnStdout: true
-                    ).trim()
-
-                    env.IMAGE_TAG = "${params.IMAGE}:${env.GIT_SHA}"
-
-                    echo "Git SHA   : ${env.GIT_SHA}"
-                    echo "Image Tag : ${env.IMAGE_TAG}"
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
                 }
             }
         }
-
-        stage('Install & Build') {
+        
+        stage('Login to DockerHub') {
             steps {
-                sh 'npm ci'
-                sh 'npm run build'
-            }
-        }
-
-        stage('Test') {
-            when {
-                expression { params.RUN_TESTS }
-            }
-            steps {
-                sh 'npm run test --if-present'
-            }
-        }
-
-        stage('Docker: build & push') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: env.DOCKER_CREDS,
-                        usernameVariable: 'DH_USER',
-                        passwordVariable: 'DH_PASS'
-                    )
-                ]) {
-                    sh """
-                        export IMAGE_TAG="${env.IMAGE_TAG}"
-
-                        echo "\$DH_PASS" | docker login -u "\$DH_USER" --password-stdin
-                        docker build -t "\$IMAGE_TAG" .
-                        docker push "\$IMAGE_TAG"
-                        docker logout
-                    """
+                script {
+                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
                 }
             }
         }
-
-        stage('Deploy') {
+        
+        stage('Push to DockerHub') {
             steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: env.SSH_CREDS,
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no -i "\$SSH_KEY" \
-                        $DEPLOY_USER@$DEPLOY_HOST '
-                            docker pull \${IMAGE_TAG} &&
-                            docker rm -f fitstop || true &&
-                            docker run -d \
-                              --name fitstop \
-                              -p 80:5173 \
-                              --restart unless-stopped \
-                              \${IMAGE_TAG}
-                        '
-                    """
+                script {
+                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker push ${IMAGE_NAME}:latest"
+                }
+            }
+        }
+        
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
         }
     }
-
+    
     post {
         always {
-            cleanWs()
+            sh 'docker logout'
         }
         success {
-            echo 'Pipeline completed successfully'
+            echo 'Pipeline executed successfully!'
         }
         failure {
-            echo 'Pipeline failed'
+            echo 'Pipeline failed!'
         }
     }
 }
