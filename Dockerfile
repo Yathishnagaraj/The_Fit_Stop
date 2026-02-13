@@ -12,32 +12,20 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build TypeScript project (if build script exists)
-RUN npm run build || echo "No build script, skipping..."
+# Build the app (creates dist/ folder with static files)
+RUN npm run build
 
-# Production stage
-FROM node:18-alpine
+# Production stage - Use nginx to serve static files
+FROM nginx:alpine
 
-WORKDIR /app
+# Copy built files to nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy package files
-COPY package*.json ./
+# Copy custom nginx configuration for SPA routing
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Install dependencies (including dev dependencies if needed for start)
-RUN npm ci
+# Expose port 80
+EXPOSE 80
 
-# Copy everything from builder
-COPY --from=builder /app .
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 && \
-    chown -R nodejs:nodejs /app
-
-USER nodejs
-
-# Expose port
-EXPOSE 3000
-
-# Use npm start (this uses whatever is defined in package.json)
-CMD ["npm", "start"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
