@@ -49,35 +49,31 @@ Deno.serve(async (req) => {
       );
     }
 
+    // recipients can be provided via CONTACT_RECIPIENT_EMAIL (single or comma-separated)
+    const recipientEnv = Deno.env.get("CONTACT_RECIPIENT_EMAIL") ?? "manisbhoopalam@gmail.com";
+    const recipients = recipientEnv.split(",").map((s) => s.trim()).filter(Boolean);
+    
+    const emailBody = {
+      from: "FitStop Contact <onboarding@resend.dev>",
+      to: recipients,
+      subject: `New Contact: ${subject}`,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message}</p>
+      `,
+    };
+    
     const emailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${resendApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: "FitStop Contact <onboarding@resend.dev>",
-        to: ["manisbhoopalam@gmail.com"],
-        subject: `New Contact: ${subject}`,
-        html: `
-          <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Subject:</strong> ${subject}</p>
-          <p><strong>Message:</strong></p>
-          <p>${message}</p>
-        `,
-      }),
-    });
-
-    if (!emailRes.ok) {
-      const errBody = await emailRes.text();
-      console.error(`Resend API error [${emailRes.status}]:`, errBody);
-      // Still return success since DB save worked
-    }
-
-    return new Response(
-      JSON.stringify({ success: true }),
+      body: JSON.stringify(emailBody),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

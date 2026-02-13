@@ -22,6 +22,8 @@ const ContactSection: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const contactEmail = import.meta.env.VITE_CONTACT_EMAIL ?? "manisbhoopalam@gmail.com";
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -85,7 +87,7 @@ const ContactSection: React.FC = () => {
 
             <div className="space-y-6">
               {[
-                { icon: Mail, label: "Email", value: "manisbhoopalam@gmail.com" },
+                { icon: Mail, label: "Email", value: contactEmail },
                 { icon: Phone, label: "Phone", value: "9108356860 / 9164408724" },
                 { icon: MapPin, label: "Website", value: "www.thefitstop.in" },
               ].map((item) => (

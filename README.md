@@ -64,6 +64,24 @@ This project is built with:
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
 
+## Contact form (serverless)
+
+- The email address that receives "Get In Touch" submissions is configurable in the Supabase Edge Function.
+- To change the recipient set the environment variable `CONTACT_RECIPIENT_EMAIL` in your Supabase function settings (single email or comma-separated list).
+- To update the visible contact email on the website set `VITE_CONTACT_EMAIL` in your site's environment (e.g. `.env`) and rebuild.
+
+Required environment variables for the contact function:
+
+- `RESEND_API_KEY` — API key for Resend (used to send emails)
+- `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` — required for persisting submissions
+
+Example:
+
+```
+CONTACT_RECIPIENT_EMAIL=you@company.com
+VITE_CONTACT_EMAIL=you@company.com
+```
+
 ## Can I connect a custom domain to my Lovable project?
 
 Yes, you can!
