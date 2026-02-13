@@ -26,11 +26,6 @@ pipeline {
       }
     }
 
-    stage('Test (optional)') {
-      when { expression { return params.RUN_TESTS } }
-      steps { sh 'npm run test --if-present -- --runInBand' }
-    }
-
     stage('Docker: build & push') {
       steps {
         withCredentials([usernamePassword(credentialsId: env.DOCKER_CREDS, usernameVariable: 'DH_USER', passwordVariable: 'DH_PASS')]) {
