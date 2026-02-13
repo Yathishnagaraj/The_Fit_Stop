@@ -3,34 +3,62 @@ pipeline {
     
     parameters {
         string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to deploy')
+        string(name: 'CONTAINER_PORT', defaultValue: '3000', description: 'Container internal port')
+        string(name: 'HOST_PORT', defaultValue: '80', description: 'Host port to expose')
     }
     
     environment {
         IMAGE_NAME = 'yathish047/fitstopweb'
+        CONTAINER_NAME = 'fitstop-app'
     }
     
     stages {
-        stage('Deploy to Kubernetes') {
+        stage('Stop Old Container') {
             steps {
                 script {
-                    echo "Deploying ${IMAGE_NAME}:${params.IMAGE_TAG}"
-                    
-                    // Check if deployment exists, create if not
-                    def exists = sh(script: 'kubectl get deployment fitstop-deployment 2>/dev/null', returnStatus: true)
-                    
-                    if (exists != 0) {
-                        echo "Creating initial deployment..."
-                        sh "kubectl apply -f deployment.yaml"
-                    } else {
-                        echo "Updating existing deployment..."
-                        sh "kubectl set image deployment/fitstop-deployment fitstop-container=${IMAGE_NAME}:${params.IMAGE_TAG}"
-                    }
-                    
-                    // Wait for deployment to finish
-                    sh "kubectl rollout status deployment/fitstop-deployment --timeout=5m"
-                    
-                    // Show status
-                    sh "kubectl get pods -l app=fitstop"
+                    sh '''
+                        docker stop ${CONTAINER_NAME} 2>/dev/null || true
+                        docker rm ${CONTAINER_NAME} 2>/dev/null || true
+                    '''
+                }
+            }
+        }
+        
+        stage('Pull Image') {
+            steps {
+                script {
+                    sh "docker pull ${IMAGE_NAME}:${params.IMAGE_TAG}"
+                }
+            }
+        }
+        
+        stage('Run Container') {
+            steps {
+                script {
+                    sh """
+                        docker run -d \
+                        --name ${CONTAINER_NAME} \
+                        -p ${params.HOST_PORT}:${params.CONTAINER_PORT} \
+                        --restart unless-stopped \
+                        ${IMAGE_NAME}:${params.IMAGE_TAG}
+                    """
+                }
+            }
+        }
+        
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    sh "docker ps | grep ${CONTAINER_NAME}"
+                    echo "✅ Container is running on port ${params.HOST_PORT}"
+                }
+            }
+        }
+        
+        stage('Cleanup Old Images') {
+            steps {
+                script {
+                    sh 'docker image prune -f'
                 }
             }
         }
@@ -39,6 +67,7 @@ pipeline {
     post {
         success {
             echo "✅ Deployment successful!"
+            echo "Access your app at: http://<your-server-ip>:${params.HOST_PORT}"
         }
         failure {
             echo "❌ Deployment failed!"
