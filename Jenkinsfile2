@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to deploy')
+    }
+    
+    environment {
+        IMAGE_NAME = 'yathish047/fitstopweb'
+    }
+    
+    stages {
+        stage('Pull Image from DockerHub') {
+            steps {
+                script {
+                    echo "Pulling image: ${IMAGE_NAME}:${params.IMAGE_TAG}"
+                    sh "docker pull ${IMAGE_NAME}:${params.IMAGE_TAG}"
+                }
+            }
+        }
+        
+        stage('Verify Image') {
+            steps {
+                script {
+                    sh "docker images | grep ${IMAGE_NAME}"
+                }
+            }
+        }
+        
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    echo "Deploying image: ${IMAGE_NAME}:${params.IMAGE_TAG}"
+                    
+                    // Update deployment with specified image tag
+                    sh """
+                        kubectl set image deployment/fitstop-deployment \
+                        fitstop-container=${IMAGE_NAME}:${params.IMAGE_TAG} \
+                        --record
+                    """
+                    
+                    // Wait for rollout to complete
+                    sh "kubectl rollout status deployment/fitstop-deployment --timeout=5m"
+                    
+                    // Verify deployment
+                    echo "Deployment completed. Checking pod status..."
+                    sh "kubectl get pods -l app=fitstop"
+                    sh "kubectl get svc fitstop-service"
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo "✅ Deployment successful! Image ${IMAGE_NAME}:${params.IMAGE_TAG} is now running."
+            sh "kubectl get pods -l app=fitstop -o wide"
+        }
+        failure {
+            echo '❌ Deployment failed! Rolling back...'
+            sh "kubectl rollout undo deployment/fitstop-deployment"
+            echo "Rolled back to previous version"
+        }
+    }
+}
