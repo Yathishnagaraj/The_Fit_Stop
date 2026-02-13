@@ -1,16 +1,25 @@
+import * as React from "react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, MapPin, Phone, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const ContactSection = () => {
-  const [formData, setFormData] = useState({
+type ContactForm = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+};
+
+const ContactSection: React.FC = () => {
+  const [formData, setFormData] = useState<ContactForm>({
     name: "",
     email: "",
     subject: "",
     message: "",
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
