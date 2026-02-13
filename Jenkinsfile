@@ -38,8 +38,8 @@ pipeline {
 
                     env.IMAGE_TAG = "${params.IMAGE}:${env.GIT_SHA}"
 
-                    echo "Git SHA  : ${env.GIT_SHA}"
-                    echo "Image Tag: ${env.IMAGE_TAG}"
+                    echo "Git SHA   : ${env.GIT_SHA}"
+                    echo "Image Tag : ${env.IMAGE_TAG}"
                 }
             }
         }
@@ -71,8 +71,8 @@ pipeline {
                 ]) {
                     sh """
                         echo "\$DH_PASS" | docker login -u "\$DH_USER" --password-stdin
-                        docker build -t "$IMAGE_TAG" .
-                        docker push "$IMAGE_TAG"
+                        docker build -t "\${IMAGE_TAG}" .
+                        docker push "\${IMAGE_TAG}"
                         docker logout
                     """
                 }
@@ -91,13 +91,13 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no -i "\$SSH_KEY" \
                         $DEPLOY_USER@$DEPLOY_HOST '
-                            docker pull $IMAGE_TAG &&
+                            docker pull \${IMAGE_TAG} &&
                             docker rm -f fitstop || true &&
                             docker run -d \
                               --name fitstop \
                               -p 80:5173 \
                               --restart unless-stopped \
-                              $IMAGE_TAG
+                              \${IMAGE_TAG}
                         '
                     """
                 }
