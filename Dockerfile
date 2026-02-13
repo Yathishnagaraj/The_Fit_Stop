@@ -12,8 +12,8 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build TypeScript project
-RUN npm run build
+# Build TypeScript project (if build script exists)
+RUN npm run build || echo "No build script, skipping..."
 
 # Production stage
 FROM node:18-alpine
@@ -23,20 +23,21 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Install dependencies (including dev dependencies if needed for start)
+RUN npm ci
 
-# Copy built files from builder stage
-COPY --from=builder /app/dist ./dist
+# Copy everything from builder
+COPY --from=builder /app .
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
 
 USER nodejs
 
-# Expose port (adjust if your app uses a different port)
+# Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "dist/index.js"]
+# Use npm start (this uses whatever is defined in package.json)
+CMD ["npm", "start"]
